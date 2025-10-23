@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>حاسبة متى دوري</title>
+<style>
+  body {
+    font-family: "Tajawal", sans-serif;
+    background: #f9fafc;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1.5rem;
+    color: #333;
+  }
+
+  h2 {
+    color: #0077aa;
+  }
+
+  form {
+    background: #fff;
+    padding: 1rem 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 0 8px rgba(0,0,0,0.1);
+    max-width: 320px;
+    width: 100%;
+  }
+
+  label {
+    display: block;
+    margin-top: 1rem;
+    font-size: 1rem;
+    font-weight: 600;
+  }
+
+  input {
+    width: 100%;
+    padding: 0.5rem;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    margin-top: 0.5rem;
+    font-size: 1rem;
+  }
+
+  button {
+    margin-top: 1.5rem;
+    width: 100%;
+    padding: 0.8rem;
+    background-color: #0077aa;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    cursor: pointer;
+  }
+
+  button:hover {
+    background-color: #005f88;
+  }
+
+  h3 {
+    margin-top: 1.5rem;
+    color: #004d66;
+  }
+</style>
+</head>
+<body>
+  <h2>📅 حاسبة وقت الدور</h2>
+
+  <form id="queueForm">
+    <label for="count">عدد الأشخاص أمامك:</label>
+    <input type="number" id="count" placeholder="مثلاً 73" required />
+
+    <label for="minutesPerPerson">الوقت لكل شخص (بالدقائق):</label>
+    <input type="number" id="minutesPerPerson" placeholder="مثلاً 5" required />
+
+    <label for="currentTime">الوقت الحالي:</label>
+    <input type="time" id="currentTime" required />
+
+    <button type="submit">احسب وقتي</button>
+  </form>
+
+  <h3 id="result"></h3>
+
+  <script>
+    document.getElementById("queueForm").addEventListener("submit", function (e) {
+      e.preventDefault();
+
+      const count = parseInt(document.getElementById("count").value);
+      const minutesPerPerson = parseInt(document.getElementById("minutesPerPerson").value);
+      const currentTime = document.getElementById("currentTime").value;
+
+      if (!count || !minutesPerPerson || !currentTime) {
+        document.getElementById("result").textContent = "يرجى إدخال جميع البيانات.";
+        return;
+      }
+
+      const [hours, minutes] = currentTime.split(":").map(Number);
+      const now = new Date();
+      now.setHours(hours, minutes, 0, 0);
+
+      const totalMinutes = count * minutesPerPerson;
+      now.setMinutes(now.getMinutes() + totalMinutes);
+
+      const resultTime = now.toLocaleTimeString("ar-EG", {
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+
+      document.getElementById("result").textContent = `⏰ سيحين دورك عند الساعة ${resultTime}`;
+    });
+  </script>
+</body>
+</html>
