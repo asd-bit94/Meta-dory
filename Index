@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>وش بختار</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@700;900&display=swap');
+
+        :root {
+            --bg-color: #ffde4d;
+            --card-bg: #ff6b6b;
+            --paper-bg: #f4f1de;
+            --text-color: #1a1a1a;
+            --border-style: 4px solid #1a1a1a;
+            --box-shadow-pop: 6px 6px 0px #1a1a1a;
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: var(--bg-color);
+            background-image: radial-gradient(#fcd116 20%, transparent 20%), radial-gradient(#fcd116 20%, transparent 20%);
+            background-size: 30px 30px;
+            background-position: 0 0, 15px 15px;
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+            box-sizing: border-box;
+        }
+
+        h1 {
+            font-size: 3rem;
+            font-weight: 900;
+            color: #fff;
+            text-shadow: 4px 4px 0px #000, -2px -2px 0px #000, 2px -2px 0px #000, -2px 2px 0px #000;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 500px;
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: 20px;
+            border: var(--border-style);
+            box-shadow: var(--box-shadow-pop);
+            z-index: 10;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.28);
+        }
+
+        /* أنيميشن اختفاء صندوق الإدخال */
+        .container.hide {
+            transform: scale(0) rotate(-15deg);
+            opacity: 0;
+            height: 0;
+            padding: 0;
+            margin: 0;
+            pointer-events: none;
+            border: none;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 12px;
+            font-size: 1.2rem;
+            color: #fff;
+            text-shadow: 2px 2px 0px #000;
+        }
+
+        textarea {
+            width: 100%;
+            height: 120px;
+            background: #fff;
+            color: #000;
+            border: var(--border-style);
+            border-radius: 12px;
+            padding: 12px;
+            font-size: 16px;
+            font-weight: bold;
+            box-sizing: border-box;
+            resize: none;
+            outline: none;
+        }
+
+        button {
+            width: 100%;
+            background-color: #4ea8de;
+            color: white;
+            border: var(--border-style);
+            padding: 15px;
+            font-size: 1.3rem;
+            font-weight: 900;
+            border-radius: 12px;
+            cursor: pointer;
+            margin-top: 15px;
+            box-shadow: 4px 4px 0px #000;
+            transition: transform 0.1s, box-shadow 0.1s;
+            text-shadow: 2px 2px 0px #000;
+        }
+
+        button:active {
+            transform: translate(4px, 4px);
+            box-shadow: 0px 0px 0px #000;
+        }
+
+        /* زر إعادة الضبط الهزاز */
+        #shake-btn {
+            display: none;
+            background-color: #70e000;
+            max-width: 200px;
+            margin-bottom: 15px;
+        }
+
+        /* منطقة رمي الأوراق */
+        #paper-zone {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            height: 450px;
+            background: #fff;
+            border: var(--border-style);
+            border-radius: 24px;
+            box-shadow: var(--box-shadow-pop);
+            margin-top: 10px;
+            overflow: hidden;
+            display: none;
+        }
+
+        /* الأوراق الكرتونية المطوية */
+        .folded-paper {
+            position: absolute;
+            width: 70px;
+            height: 50px;
+            background: var(--paper-bg);
+            border: var(--border-style);
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: 4px 4px 0px #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), top 0.5s ease, left 0.5s ease;
+        }
+
+        /* خط الطي الكرتوني */
+        .folded-paper::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 3px;
+            background: #1a1a1a;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .folded-paper:hover {
+            transform: scale(1.15) rotate(5deg) !important;
+            background-color: #ffda79;
+        }
+
+        /* أنيميشن خض وعجن الأوراق عند الهز */
+        .shake-animation {
+            animation: cartoon-shake 0.4s ease-in-out infinite;
+        }
+
+        @keyframes cartoon-shake {
+            0% { transform: translate(0, 0) rotate(0deg); }
+            25% { transform: translate(-8px, 8px) rotate(-5deg); }
+            50% { transform: translate(8px, -4px) rotate(5deg); }
+            75% { transform: translate(-4px, -4px) rotate(-3deg); }
+            100% { transform: translate(4px, 4px) rotate(3deg); }
+        }
+
+        /* شاشة عرض النتيجة الكرتونية البوب أب */
+        #overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        #overlay.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .opened-paper {
+            background: #fff;
+            color: #000;
+            padding: 40px;
+            border-radius: 20px;
+            border: var(--border-style);
+            box-shadow: 8px 8px 0px #000;
+            max-width: 85%;
+            width: 320px;
+            text-align: center;
+            transform: scale(0) rotate(-20deg);
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.4);
+        }
+
+        #overlay.show .opened-paper {
+            transform: scale(1) rotate(0deg);
+        }
+
+        .result-text {
+            font-size: 2rem;
+            font-weight: 900;
+            margin: 20px 0;
+            color: #ff6b6b;
+            word-wrap: break-word;
+        }
+
+        .close-btn {
+            background: #ffbe0b;
+            color: #000;
+            padding: 10px 25px;
+            font-size: 1.1rem;
+            border: var(--border-style);
+            box-shadow: 3px 3px 0px #000;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>✨ وش بختار  ✨</h1>
+    
+    <!-- زر هز الشاشة للكمبيوتر أو للتجربة البديلة -->
+    <button id="shake-btn" onclick="triggerShakeEffect()">خض الأوراق! 👋</button>
+
+    <div class="container" id="setup-box">
+        <label>أدخلي الخيارات (كل خيار في سطر):</label>
+        <textarea id="options-input" placeholder="اكتبي الخيارات هنا..."></textarea>
+        <button onclick="throwPapers()">ارمي الأوراق! 🎲</button>
+    </div>
+
+    <div id="paper-zone"></div>
+
+    <!-- شاشة النتيجة -->
+    <div id="overlay" onclick="closePaper()">
+        <div class="opened-paper" onclick="event.stopPropagation()">
+            <p style="font-size: 1.1rem; font-weight: 700; margin: 0;">الورقة المفتوحة طلعت لنا: 👀</p>
+            <div class="result-text" id="result-display">...</div>
+            <button class="close-btn" onclick="closePaper()">كفووو! 👍</button>
+        </div>
+    </div>
+
+    <script>
+        let choices = [];
+        let papersArray = [];
+
+        // تفعيل مستشعر الحركة للهواتف (هز الجوال)
+        if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
+            // للهواتف التي تتطلب إذن مثل الآيفون
+            document.body.addEventListener('click', function() {
+                DeviceMotionEvent.requestPermission();
+            }, { once: true });
+        }
+
+        window.addEventListener('devicemotion', handleMotion);
+
+        let lastX, lastY, lastZ;
+        let moveCounter = 0;
+
+        function handleMotion(event) {
+            let acceleration = event.accelerationIncludingGravity;
+            if (!acceleration) return;
+
+            let x = acceleration.x;
+            let y = acceleration.y;
+            let z = acceleration.z;
+
+            if (lastX === undefined) {
+                lastX = x; lastY = y; lastZ = z;
+                return;
+            }
+
+            let deltaX = Math.abs(lastX - x);
+            let deltaY = Math.abs(lastY - y);
+            let deltaZ = Math.abs(lastZ - z);
+
+            // إذا كانت الحركة قوية كفاية (هزة) والأوراق موجودة بالمنطقة
+            if ((deltaX > 12 || deltaY > 12 || deltaZ > 12) && choices.length > 0) {
+                triggerShakeEffect();
+            }
+
+            lastX = x; lastY = y; lastZ = z;
+        }
+
+        function throwPapers() {
+            const input = document.getElementById('options-input').value;
+            choices = input.split('\n').map(item => item.trim()).filter(item => item !== "");
+
+            if (choices.length < 2) {
+                alert("يا عنود لازم خيارين على الأقل عشان نسوي قرعة! 😉");
+                return;
+            }
+
+            // 1. إخفاء صندوق الإدخال تماماً كرتونياً
+            document.getElementById('setup-box').classList.add('hide');
+
+            // إظهار زر الخض اليدوي كبديل ممتع
+            document.getElementById('shake-btn').style.display = 'block';
+
+            const zone = document.getElementById('paper-zone');
+            zone.innerHTML = ''; 
+            zone.style.display = 'block';
+            papersArray = [];
+
+            // 2. توزيع الأوراق بعشوائية كرتونية
+            choices.forEach((choice) => {
+                const paper = document.createElement('div');
+                paper.classList.add('folded-paper');
+                
+                randomizePaperPosition(paper, zone);
+                
+                paper.setAttribute('data-value', choice);
+                paper.onclick = function() { openPaper(this); };
+
+                zone.appendChild(paper);
+                papersArray.push(paper);
+            });
+        }
+
+        function randomizePaperPosition(paper, zone) {
+            const maxWidth = zone.clientWidth - 80;
+            const maxHeight = zone.clientHeight - 60;
+            
+            const randomX = Math.floor(Math.random() * maxWidth);
+            const randomY = Math.floor(Math.random() * maxHeight);
+            const randomAngle = Math.floor(Math.random() * 80) - 40;
+
+            paper.style.left = randomX + 'px';
+            paper.style.top = randomY + 'px';
+            paper.style.transform = `rotate(${randomAngle}deg)`;
+        }
+
+        // تحريك وخلط الأوراق عند هز الجوال أو ضغط الزر
+        function triggerShakeEffect() {
+            const zone = document.getElementById('paper-zone');
+            
+            // إضافة كلاس الأنيميشن الهزاز للأوراق
+            papersArray.forEach(paper => {
+                paper.classList.add('shake-animation');
+                
+                // تغيير الأماكن بشكل عشوائي مع حركة الهز
+                setTimeout(() => {
+                    randomizePaperPosition(paper, zone);
+                }, 200);
+            });
+
+            // إزالة كلاس الهز بعد انتهاء الحركة لتستقر الأوراق في مكانها الجديد
+            setTimeout(() => {
+                papersArray.forEach(paper => {
+                    paper.classList.remove('shake-animation');
+                });
+            }, 400);
+        }
+
+        function openPaper(paperElement) {
+            const val = paperElement.getAttribute('data-value');
+            document.getElementById('result-display').innerText = val;
+            document.getElementById('overlay').classList.add('show');
+            
+            // إزالة الورقة من الساحة والمصفوفة بعد فتحها
+            papersArray = papersArray.filter(p => p !== paperElement);
+            paperElement.remove();
+
+            // إذا خلصت كل الأوراق، أرجع أظهر الصندوق الأساسي
+            if(papersArray.length === 0) {
+                setTimeout(() => {
+                    resetApp();
+                }, 1000);
+            }
+        }
+
+        function closePaper() {
+            document.getElementById('overlay').classList.remove('show');
+        }
+
+        function resetApp() {
+            document.getElementById('setup-box').classList.remove('hide');
+            document.getElementById('paper-zone').style.display = 'none';
+            document.getElementById('shake-btn').style.display = 'none';
+            choices = [];
+        }
+    </script>
+</body>
+</html>
